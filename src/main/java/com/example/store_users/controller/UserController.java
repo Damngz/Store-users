@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.store_users.model.ApiResponse;
 import com.example.store_users.model.Login;
 import com.example.store_users.model.User;
 import com.example.store_users.service.UserService;
@@ -26,43 +27,57 @@ public class UserController {
   private UserService userService;
 
   @GetMapping
-  public ResponseEntity<List<User>> getAllUsers() {
-    return ResponseEntity.ok(userService.getAllUsers());
+  public ResponseEntity<ApiResponse<List<User>>> getAllUsers() {
+    return ResponseEntity.ok(new ApiResponse<>(200,"OK",userService.getAllUsers()));
   }
 
   @GetMapping("/{userId}")
-  public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+  public ResponseEntity<ApiResponse<User>> getUserById(@PathVariable Long userId) {
     Optional<User> user = userService.getUserById(userId);
     return user
-      .map(ResponseEntity::ok)
-      .orElseGet(() -> ResponseEntity.notFound().build());
+      .map(value -> ResponseEntity.ok(new ApiResponse<>(200, "User found", value)))
+      .orElseGet(() -> ResponseEntity
+        .status(HttpStatus.NOT_FOUND)
+        .body(new ApiResponse<>(404, "User not found", null)));
   }
 
   @PostMapping
-  public ResponseEntity<User> createUser(@RequestBody User user) {
+  public ResponseEntity<ApiResponse<User>> createUser(@RequestBody User user) {
     User createdUser = userService.createUser(user);
-    return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    ApiResponse<User> response = new ApiResponse<>(201, "User created successfully", createdUser);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
   @PutMapping("/{userId}")
-  public ResponseEntity<User> updateUser(@PathVariable Long userId, @RequestBody User user) {
+  public ResponseEntity<ApiResponse<User>> updateUser(@PathVariable Long userId, @RequestBody User user) {
     try {
       User updatedUser = userService.updateUser(userId, user);
-      return ResponseEntity.ok(updatedUser);
+      return ResponseEntity.ok(new ApiResponse<>(200, "User updated successfully", updatedUser));
     } catch (RuntimeException e) {
-      return ResponseEntity.notFound().build();
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(404, "User not found", null));
     }
   }
 
   @DeleteMapping("/{userId}")
-  public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-    userService.deleteUser(userId);
-    return ResponseEntity.noContent().build();
+  public ResponseEntity<ApiResponse<Void>> deleteUser(@PathVariable Long userId) {
+    try {
+      userService.deleteUser(userId);
+      return ResponseEntity.ok(new ApiResponse<>(200, "User deleted", null));
+    } catch (RuntimeException e) {
+      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse<>(404, "User not found", null));
+    }
   }
 
   @PostMapping("/login")
-  public ResponseEntity<User> login(@RequestBody Login loginRequest) {
-      User user = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-      return ResponseEntity.ok(user);
+  public ResponseEntity<ApiResponse<Void>> login(@RequestBody Login loginRequest) {
+    try {
+      userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+      ApiResponse<Void> response = new ApiResponse<>(200, "Login successful", null);
+      return ResponseEntity.ok(response);
+    } catch (RuntimeException e) {
+      return ResponseEntity
+        .status(HttpStatus.UNAUTHORIZED)
+        .body(new ApiResponse<>(401, "Invalid credentials", null));
+    }
   }
 }
