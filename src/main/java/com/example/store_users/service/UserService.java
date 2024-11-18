@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import com.example.store_users.model.User;
 import com.example.store_users.repository.UserRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class UserService {
   @Autowired
@@ -35,9 +38,11 @@ public class UserService {
       .findById(userId)
       .map(user -> {
         user.setName(updatedUser.getName());
+        user.setLastNames(updatedUser.getLastNames());
+        user.setCity(updatedUser.getCity());
+        user.setAddress(updatedUser.getAddress());
+        user.setPhone(updatedUser.getPhone());
         user.setEmail(updatedUser.getEmail());
-        user.setPassword(updatedUser.getPassword());
-        user.setRole(updatedUser.getRole());
         return userRepository.save(user);
       })
       .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
