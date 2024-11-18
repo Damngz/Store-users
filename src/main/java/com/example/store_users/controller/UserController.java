@@ -69,10 +69,10 @@ public class UserController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<ApiResponse<Void>> login(@RequestBody Login loginRequest) {
+  public ResponseEntity<ApiResponse<Optional<User>>> login(@RequestBody Login loginRequest) {
     try {
       userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-      ApiResponse<Void> response = new ApiResponse<>(200, "Login successful", null);
+      ApiResponse<Optional<User>> response = new ApiResponse<>(200, "Login successful", userService.getUserByEmail(loginRequest.getEmail()));
       return ResponseEntity.ok(response);
     } catch (RuntimeException e) {
       return ResponseEntity

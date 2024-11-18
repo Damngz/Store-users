@@ -5,20 +5,30 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name="users")
+@Table(name="session_user")
 public class User {
   @Id
   @GeneratedValue(strategy =  GenerationType.IDENTITY)
   @Column(name = "user_id")
   private Long userId;
 
-  @Column(nullable = false)
+  @Column(name = "nombre", nullable = false)
   private String name;
+
+  @Column(name = "apellidos", nullable = false)
+  private String last_names;
+
+  @Column(name = "telefono", nullable = false)
+  private String phone;
+
+  @Column(name = "ciudad", nullable = false)
+  private String city;
+
+  @Column(name = "direccion", nullable = false)
+  private String address;
 
   @Column(nullable = false, unique = true)
   private String email;
@@ -26,9 +36,8 @@ public class User {
   @Column(nullable = false)
   private String password;
 
-  @ManyToOne
-  @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
-  private Role role;
+  @Column(name = "rol", nullable = false)
+  private String role;
 
   public User() {}
 
@@ -41,11 +50,43 @@ public class User {
   }
 
   public String getName() {
-    return name;
+  return name;
   }
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getLastNames() {
+    return last_names;
+  }
+
+  public void setLastNames(String last_names) {
+    this.last_names = last_names;
+  }
+
+  public String getPhone() {
+    return phone;
+  }
+
+  public void setPhone(String phone) {
+    this.phone = phone;
+  }
+
+  public String getCity() {
+    return city;
+  }
+
+  public void setCity(String city) {
+    this.city = city;
+  }
+
+  public String getAddress() {
+    return address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
   }
 
   public String getEmail() {
@@ -64,11 +105,11 @@ public class User {
     this.password = password;
   }
 
-  public Role getRole() {
+  public String getRole() {
     return role;
   }
 
-  public void setRole(Role role) {
+  public void setRole(String role) {
     this.role = role;
   }
 }
